@@ -24,7 +24,7 @@ function HandleCalculator(){
     $.ajax({
         type: 'GET',
         dataType: 'jsonp',
-        url: "https://tftd8xwbw9.execute-api.us-east-1.amazonaws.com/default/homeinvestment",
+        url: "https://as0c02n20k.execute-api.us-east-1.amazonaws.com/",
         data: submission,
         jsonpCallback: "localJsonpCallback(",
         error: function(data) {

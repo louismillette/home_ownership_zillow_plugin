@@ -22,17 +22,18 @@ function enter(){
 }
 
 function getdata(){
-	var list_price = $('.ds-value').html().replace('$', '').replace(' ', '').replace(',', '').replace(',', '');
-	var property_tax_rate_yearly = parseFloat($('span:contains("Property taxes")').next().html().replace('$', '').replace('/mo', '').replace(',', '').replace(',', ''));
+	var list_price = $($(".ds-summary-row-container").find('span:contains("$")')[0]).text().replace('$', '').replace(' ', '').replace(',', '').replace(',', '');
+	var property_tax_rate_yearly = 12 * parseFloat($('button:contains("Property taxes")').text().split("/mo")[0].replace("Property taxes", "").replace("$", ""));
 	var type = $('span:contains("Type:")').next().html();
-	var rental_income = $('span:contains("Rent Zestimate")').parent().next().find('p:contains("$")').html();
+	var rental_income = $('button:contains("Rent Zestimate")').parent().text();
 	var maintainance_monthly = calculate_maint(type);
 	var condo_fees_monthly = 0;
-	var home_insurance_monthly = parseFloat($('span:contains("Home insurance")').next().html().replace('$', '').replace('/mo', '').replace(',', '').replace(',', ''));
-	property_tax_rate_yearly = property_tax_rate_yearly * 12 / parseFloat(list_price);
-	rental_income = rental_income.replace('$', '').replace(',', '').replace(',', '').replace('<', '').replace('>', '').replace('!', '').replace('/mo', '');
+	var home_insurance_monthly = parseFloat($('button:contains("Home insurance")').text().split("/mo")[0].replace('$', '').replace('/mo', '').replace('Home insurance', ''));
+	rental_income = rental_income.replace('RentZestimate', '').replace('$', '').replace(',', '').replace(',', '').replace('<', '').replace('>', '').replace('!', '').replace('/mo', '');
 	rental_income = rental_income.split("-").join("").split(" ").join("");
-	if ($('span:contains("HOA:")').length) {
+  rental_income = rental_income.replaceAll('RentZestimate', '').replaceAll('®', '');
+	console.log("Rental Income: " + rental_income);
+  if ($('span:contains("HOA:")').length) {
 		fee = parseFloat($('span:contains("HOA:")').next().html().replace('$', '').replace('/mo', '').replace(',', '').replace(',', ''));
 		if (!(isNaN(fee))){
 			condo_fees_monthly = fee;
