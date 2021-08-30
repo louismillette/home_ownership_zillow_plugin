@@ -23,13 +23,14 @@ function enter(){
 
 function getdata(){
 	var list_price = $($(".ds-summary-row-container").find('span:contains("$")')[0]).text().replace('$', '').replace(' ', '').replace(',', '').replace(',', '');
-	var property_tax_rate_yearly = 12 * parseFloat($('button:contains("Property taxes")').text().split("/mo")[0].replace("Property taxes", "").replace("$", ""));
+	var property_tax_monthly = parseFloat($('button:contains("Property taxes")').text().split("/mo")[0].replace("Property taxes", "").replace("$", ""));
 	var type = $('span:contains("Type:")').next().html();
 	var rental_income = $('button:contains("Rent Zestimate")').parent().text();
 	var maintainance_monthly = calculate_maint(type);
 	var condo_fees_monthly = 0;
 	var home_insurance_monthly = parseFloat($('button:contains("Home insurance")').text().split("/mo")[0].replace('$', '').replace('/mo', '').replace('Home insurance', ''));
-	rental_income = rental_income.replace('RentZestimate', '').replace('$', '').replace(',', '').replace(',', '').replace('<', '').replace('>', '').replace('!', '').replace('/mo', '');
+	property_tax_rate_yearly = property_tax_monthly * 12 / parseFloat(list_price);
+  rental_income = rental_income.replace('RentZestimate', '').replace('$', '').replace(',', '').replace(',', '').replace('<', '').replace('>', '').replace('!', '').replace('/mo', '');
 	rental_income = rental_income.split("-").join("").split(" ").join("");
   rental_income = rental_income.replaceAll('RentZestimate', '').replaceAll('®', '');
 	console.log("Rental Income: " + rental_income);
@@ -90,7 +91,7 @@ var waitForEl = function(selector, already, callback) {
 };
 
 function iframeit(src){
-	$('.ds-overview').html('<iframe src="' + src + '" style="border:none; width:475px; height:1400px;"></iframe>');
+	$('[data-zon=commute]').html('<iframe src="' + src + '" style="border:none; width:475px; height:1600px;"></iframe>');
 }
 
 enter();
