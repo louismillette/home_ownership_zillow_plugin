@@ -1,5 +1,13 @@
+// if zillow doesn't provide all the info needed, the calculator can still run but only a handfull of metrics are still useful.
+var complete_set = true;
+
 function HandleCalculator(){
     var urlParams = new URLSearchParams(window.location.search);
+    rental_income = urlParams.get('rental_income')
+    if (rental_income==""){
+        rental_income = "1"
+        complete_set = false;
+    }
     var submission = {
         "total_years": "30",
         "mortgageable_months": "360",
@@ -11,7 +19,9 @@ function HandleCalculator(){
         "monthly_interest_rate": "0.003333333333333",
         "new": "",
         "down_payment": "0.15",
-        "fixed_closeing_costs": "5200",
+        "fixed_closeing_costs": "10000",
+            // washer/dryer: 2500
+            // refrigerator/freezer: 2300 
         "rental_income": urlParams.get('rental_income'),
         "percent_time_unit_occupied": "0.93",
         "maintainance_monthly": urlParams.get('maintainance_monthly'),
@@ -58,7 +68,7 @@ function result_title(real_reinvested_profits, eac) {
 
     text += "the S&P500 by ";
     text += amount;
-    html = '<h2 style="text-align:center; margin-top:40px; margin-bottom:20px;">' + text + '</h2>'
+    html = '<h5 style="text-align:center; margin-top:40px; margin-bottom:20px;">' + text + '</h5>'
     $('#result-title').html(html);
 }
 
@@ -74,6 +84,7 @@ function localJsonpCallback(json) {
     var number_of_months_to_pay_back_initial = json["number_of_months_to_pay_back_initial"];
     var cash_flow = json["cash_flow"];
     var real_cash_flow = json["real_cash_flow"];
+    var renters_profit_over_owner = json["renters_profit_over_owner"];
     result_title(real_reinvested_profits, eac);
     show_statistic('first_month', pad(-1 * cash_flow[0]), 'First month net loss; the minimum funding required to start this project:');
     show_statistic('nominal_profit', pad(nominal_profit), 'Nominal dollars netted over the duration:');
@@ -81,6 +92,11 @@ function localJsonpCallback(json) {
     show_statistic('number_of_months_to_pay_back_initial', pad(number_of_months_to_pay_back_initial, '', ' months'), 'Number of months to break even, without selling the property: ');
     show_statistic('eac', pad(eac), 'Real, base year adjusted value of what this investment would have netted you in the S&P 500:');
     show_statistic('real_reinvested_profits', pad(real_reinvested_profits), 'Real value of reinvesting profits in the S&P 500; what this investment should net you:');
+    if(renters_profit_over_owner > 0){
+        show_statistic('renters_profit_over_owner', pad(renters_profit_over_owner), 'Nominal wealth difference renter accures over owner');
+    } else {
+        show_statistic('renters_profit_over_owner', pad(-1 * renters_profit_over_owner), 'Nominal wealth difference owner accures over renter');
+    }
     $.each(cash_flow, function(index,val){val = [index, val]});
     $.each(real_cash_flow, function(index,val){val = [index, val]});
     // $(".loading").html('');
@@ -123,8 +139,11 @@ function localJsonpCallback(json) {
             pointIntervalUnit: 'month'
     }];   
 
-    $('#chartcontainer').html('<div class="calc-container"><div id="mainchart" style="min-width: 310px; height: 400px; margin: 0 auto">');
+    // $('#chartcontainer').html('<div class="calc-container"><div id="mainchart" style="min-width: 310px; height: 400px; margin: 0 auto">');
     graphMoney(series, 'Monthly Nominal Net Cash Flows', 'Excludes first and last month');
+    $('.collapsible').collapsible();
+    $('.collapsible').collapsible('open');
+    $('.collapsible').collapsible('close');
 }
 
 function graphMoney(series, title, subtitle) {

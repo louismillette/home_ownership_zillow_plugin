@@ -22,20 +22,18 @@ function enter(){
 }
 
 function getdata(){
-	var list_price = $($(".ds-summary-row-container").find('span:contains("$")')[0]).text().replace('$', '').replace(' ', '').replace(',', '').replace(',', '');
-	var property_tax_monthly = parseFloat($('button:contains("Property taxes")').text().split("/mo")[0].replace("Property taxes", "").replace("$", ""));
-	var type = $('span:contains("Type:")').next().html();
-	var rental_income = $('button:contains("Rent Zestimate")').parent().text();
-	var maintainance_monthly = calculate_maint(type);
+	// var list_price = $('.ds-value').html().replace('$', '').replace(' ', '').replace(',', '').replace(',', '');
+  var list_price = $('.summary-container').find('span:contains("$")').html().replace(/<span>/g, '').replace(/<\/span>/g, '').replace('$', '').replace(' ', '').replace(',', '').replace(',', '');
+	var property_tax_rate_yearly = parseFloat($('h5:contains("Property taxes")').next().html().replace('$', '').replace('/mo', '').replace(',', '').replace(',', ''));
+	var is_condo = $('span:contains("Condominium")').length;
+	var rental_income = $('h5:contains("Rent Zestimate")').parent().next().text().replace("/mo", "").replace("$", "").replace(",", "");
+  var year_built_in = parseInt($('span:contains("Built in")').text().replace('Built in ', ''));
+	var maintainance_monthly = calculate_maint(is_condo, year_built_in);
 	var condo_fees_monthly = 0;
-	var home_insurance_monthly = parseFloat($('button:contains("Home insurance")').text().split("/mo")[0].replace('$', '').replace('/mo', '').replace('Home insurance', ''));
-	property_tax_rate_yearly = property_tax_monthly * 12 / parseFloat(list_price);
-  rental_income = rental_income.replace('RentZestimate', '').replace('$', '').replace(',', '').replace(',', '').replace('<', '').replace('>', '').replace('!', '').replace('/mo', '');
-	rental_income = rental_income.split("-").join("").split(" ").join("");
-  rental_income = rental_income.replaceAll('RentZestimate', '').replaceAll('®', '');
-	console.log("Rental Income: " + rental_income);
-  if ($('span:contains("HOA:")').length) {
-		fee = parseFloat($('span:contains("HOA:")').next().html().replace('$', '').replace('/mo', '').replace(',', '').replace(',', ''));
+	var home_insurance_monthly = parseFloat($('h5:contains("Home insurance")').next().html().replace('$', '').replace('/mo', '').replace(',', '').replace(',', ''));
+	property_tax_rate_yearly = property_tax_rate_yearly * 12 / parseFloat(list_price);
+	if ($('h5:contains("HOA fees")').length) {
+		fee = parseFloat($('h5:contains("HOA fees")').next().html().replace('$', '').replace('/mo', '').replace(',', '').replace(',', ''));
 		if (!(isNaN(fee))){
 			condo_fees_monthly = fee;
 		}
@@ -48,30 +46,30 @@ function getdata(){
 			  '&condo_fees_monthly=' + condo_fees_monthly + 
 			  '&home_insurance_monthly=' + home_insurance_monthly
 
-	console.log(list_price);
-	console.log(property_tax_rate_yearly);
-	console.log(rental_income);
-	console.log(maintainance_monthly);
-	console.log(condo_fees_monthly);
-	console.log(home_insurance_monthly);
+	console.log('List Price: ' + list_price);
+	console.log('Property Tax Rate Yearly: ' + property_tax_rate_yearly);
+	console.log('Rental Income: ' + rental_income);
+	console.log('Maintainance Monthly: ' + maintainance_monthly);
+	console.log('Condo Fees Monthly: ' + condo_fees_monthly);
+	console.log('Home Insurance Monthly: ' + home_insurance_monthly);
+  console.log('is_condo (0 is no, anything else is yes): ' + is_condo);
 	return url;
 }
 
-function calculate_maint(type) {
-	year = parseInt($('span:contains("Year built")').next().html());
+function calculate_maint(is_condo, year) {
 	var age = 2020 - year;
 	if (age < 10){
 		maintainence = 50
 	} else if (age < 35) {
-		maintainence = 75;
+		maintainence = 150;
 	} else if (age < 75) {
-		maintainence = 100;
+		maintainence = 250;
 	} else {
-		maintainence = 125;
+		maintainence = 400;
 	}
 
-	if (type != "Condo") {
-		maintainence += 75;
+	if (is_condo) {
+		maintainence /= 4;
 	}
 	return maintainence;
 }
@@ -87,11 +85,11 @@ var waitForEl = function(selector, already, callback) {
 	}
 	setTimeout(function() {
 		waitForEl(selector, already, callback);
-	}, 2000);
+	}, 10000);
 };
 
 function iframeit(src){
-	$('[data-zon=commute]').html('<iframe src="' + src + '" style="border:none; width:475px; height:1600px;"></iframe>');
+	$('ul.zsg-tooltip-viewport').prepend('<iframe src="' + src + '" style="border:none; width:475px; height:635px;"></iframe>');
 }
 
 enter();
